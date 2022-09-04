@@ -9,13 +9,16 @@ use futures::pin_mut;
 use futures::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use crate::{Entity, PrecisePosition};
+
 /// Events sent by the server to clients
 #[derive(Debug, Clone, Serialize)]
 pub enum ServerToClientPacket {
 	CounterChanged {
 		name: String,
 		value: f64,
-	}
+	},
+	PositionChanged(Entity, PrecisePosition),
 }
 
 /// Events received by the server from clients

@@ -1,8 +1,11 @@
 use bevy::prelude::*;
 
+use crate::character::{Character, PlayerControlled};
+use crate::character::{Position, PrecisePosition};
 use crate::socket::{ServerToClientPacket, SocketReceiver, SocketSender, spawn_socket_thread};
 
 mod socket;
+mod character;
 
 fn main() {
 	let (socket_sender, socket_receiver) = spawn_socket_thread();
@@ -24,9 +27,11 @@ fn main() {
 
 		// Tick systems
 		.add_system(update_counters)
+		.add_system(move_characters)
 
 		// Post-tick systems
 		.add_system_to_stage(CoreStage::PostUpdate, socket_emit_counters)
+		.add_system_to_stage(CoreStage::PostUpdate, socket_emit_positions)
 
 		.run();
 }
@@ -34,6 +39,12 @@ fn main() {
 
 #[derive(Debug, Component)]
 struct Name(String);
+
+impl Name {
+	pub fn new(name: &str) -> Self {
+		Name(name.to_owned())
+	}
+}
 
 #[derive(Debug, Component)]
 struct Counter(f64);
@@ -46,6 +57,25 @@ fn setup(mut cmd: Commands) {
 	cmd.spawn()
 		.insert(Counter(0.0))
 		.insert(Name("bar".to_string()));
+
+	cmd.spawn()
+		.insert(Name::new("John Smith"))
+		.insert(Character {
+			avatar: "idk".to_owned(),
+		})
+		.insert(PlayerControlled {
+			player_id: 1,
+		})
+		.insert(PrecisePosition {
+			position: Position {
+				x: 12,
+				y: 16,
+				z: 2,
+			},
+			precise_x: 0,
+			precise_y: 0,
+			precise_z: 0,
+		});
 }
 
 
@@ -62,12 +92,27 @@ fn socket_emit_counters(query: Query<(&Name, &Counter), Changed<Counter>>, sende
 	}
 }
 
+fn socket_emit_positions(query: Query<(Entity, &PrecisePosition), Changed<PrecisePosition>>, sender: Res<SocketSender>) {
+	for (entity, pos) in query.iter() {
+		sender.send_blocking(ServerToClientPacket::PositionChanged(entity, pos.clone())).unwrap();
+	}
+}
+
 
 fn update_counters(mut query: Query<&mut Counter>, time: Res<Time>) {
 	let seconds = time.seconds_since_startup().floor();
 	for mut counter in query.iter_mut() {
 		if counter.0 != seconds {
 			counter.0 = seconds;
+		}
+	}
+}
+
+fn move_characters(mut query: Query<&mut PrecisePosition, With<Character>>) {
+	for mut pos in query.iter_mut() {
+		pos.precise_x = pos.precise_x.wrapping_add(1);
+		if pos.precise_x == 0 {
+			pos.position.x += 1;
 		}
 	}
 }
