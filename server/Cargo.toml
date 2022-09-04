@@ -1,0 +1,21 @@
+[package]
+name = "bevy-game-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-std = "1.12"
+async-tungstenite = "0.17"
+bevy = { version = "0.8", features = ["dynamic"], default-features = false }
+futures = "0.3.24"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Disable optimisations for our code in development to improve build times
+[profile.dev]
+opt-level = 0
+incremental = true
+
+# Enable high optimizations for dependencies even in development
+[profile.dev.package."*"]
+opt-level = 3

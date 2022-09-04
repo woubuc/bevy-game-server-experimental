@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+	font-family: 'Inter';
+	src: url('/fonts/inter-variable.ttf') format('truetype');
+	font-weight: 100 900;
+}
+
+@font-face {
+	font-family: 'Courier Prime Code';
+	src: url('/fonts/courier-prime-code.ttf') format('truetype');
+}
+
+
+html, body, body > div {
+	@apply min-h-screen;
+}
+
+body {
+	@apply bg-gray-100 text-gray-800 font-body;
+}
+
+a, input, button, select, textarea {
+	@apply rounded;
+}
+
+a {
+	@apply underline text-emerald-700 hocus:text-emerald-500;
+}
+
+a:focus-visible, input:focus-visible, button:focus-visible, select:focus-visible, textarea:focus-visible {
+	@apply outline-none ring-2 ring-offset-2 ring-offset-gray-100 ring-emerald-600;
+}
+
+input {
+	@apply block w-full mb-6 px-3 py-1.5 bg-white text-gray-700 border-2 border-gray-400 focus:border-emerald-500 font-semibold;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+	*:not(.motion, .motion *) {
+		animation-delay: 0ms !important;
+		animation-duration: 1ms !important;
+	}
+}
