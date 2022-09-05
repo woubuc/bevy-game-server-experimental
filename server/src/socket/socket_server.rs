@@ -7,25 +7,8 @@ use async_std::net::{TcpListener, TcpStream};
 use async_tungstenite::tungstenite::Message;
 use futures::pin_mut;
 use futures::prelude::*;
-use serde::{Deserialize, Serialize};
 
-use crate::{Entity, PrecisePosition};
-
-/// Events sent by the server to clients
-#[derive(Debug, Clone, Serialize)]
-pub enum ServerToClientPacket {
-	CounterChanged {
-		name: String,
-		value: f64,
-	},
-	PositionChanged(Entity, PrecisePosition),
-}
-
-/// Events received by the server from clients
-#[derive(Debug, Clone, Deserialize)]
-pub enum ClientToServerPacket {
-	Hi(String),
-}
+use super::packets::{ClientToServerPacket, ServerToClientPacket};
 
 /// Sender for outgoing packets
 pub type SocketSender = Sender<ServerToClientPacket>;
