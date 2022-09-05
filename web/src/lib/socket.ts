@@ -11,10 +11,25 @@ const sockette = new Sockette('ws://localhost:3333', {
 	onmessage: onMessage,
 });
 
-function onOpen(evt: Event) {
+async function onOpen(evt: Event) {
 	console.log('ws opened', evt);
 	void socket.emit('message', '<open>');
-	sockette.send(JSON.stringify({ 'Hi': `what's up?` }));
+
+	// Step 1: get socket token by logging in via the auth server
+	let res = await fetch('http://localhost:3000/login', {
+		method: 'post',
+		body: JSON.stringify({
+			email: 'foo@example.com',
+			password: '',
+		}),
+	}).then(r => r.json());
+
+	// Step 2: send token to authenticate this socket
+	sockette.send(JSON.stringify({ token: res.token }));
+
+	setTimeout(() => {
+		sockette.send(JSON.stringify({ 'Hi': `what's up?` }));
+	}, 500);
 }
 
 function onClose(evt: CloseEvent) {
@@ -34,5 +49,4 @@ function onError(evt: Event) {
 
 function onMessage(evt: MessageEvent) {
 	void socket.emit('message', evt.data);
-	console.log('ws message', evt.data);
 }

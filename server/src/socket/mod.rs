@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy::time::FixedTimestep;
 
 use crate::{App, Counter, Entity, GameTickStage, Name, PrecisePosition, SystemStage};
+use crate::auth::Auth;
 
 pub use self::packets::*;
 use self::socket_server::spawn_socket_thread;
@@ -27,9 +28,11 @@ pub struct SocketPlugin;
 
 impl Plugin for SocketPlugin {
 	fn build(&self, app: &mut App) {
+		let auth = app.world.resource::<Auth>();
+
 		// Keep track of the socket sender & the socket receiver as resources
 		// in the Bevy world so we can use them in our systems.
-		let (socket_sender, socket_receiver) = spawn_socket_thread();
+		let (socket_sender, socket_receiver) = spawn_socket_thread(auth.clone());
 		app.insert_resource(socket_sender);
 		app.insert_resource(socket_receiver);
 

@@ -1,3 +1,4 @@
+use crate::auth::AuthPlugin;
 use bevy::prelude::*;
 use bevy::time::FixedTimestep;
 
@@ -5,6 +6,7 @@ use crate::character::{Character, PlayerControlled};
 use crate::character::{Position, PrecisePosition};
 use crate::socket::SocketPlugin;
 
+mod auth;
 mod character;
 mod socket;
 
@@ -31,6 +33,7 @@ fn main() {
 		.add_system_to_stage(GameTickStage, update_counters)
 		.add_system_to_stage(GameTickStage, move_characters)
 		// Plugins
+		.add_plugin(AuthPlugin)
 		.add_plugin(SocketPlugin)
 		.run();
 }
