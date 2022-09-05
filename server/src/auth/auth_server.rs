@@ -2,10 +2,10 @@ use std::thread;
 
 use async_std::task;
 use serde::{Deserialize, Serialize};
-use tide::Body;
-use tide::security::Origin;
 use tide::prelude::*;
 use tide::security::CorsMiddleware;
+use tide::security::Origin;
+use tide::Body;
 
 use super::Auth;
 use super::UserHandle;

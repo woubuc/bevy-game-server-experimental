@@ -1,12 +1,12 @@
 use std::net::SocketAddr;
 use std::thread;
 
-use async_std::{channel, task};
 use async_std::channel::{Receiver, Sender};
 use async_std::net::{TcpListener, TcpStream};
-use async_tungstenite::tungstenite::{Message, WebSocket};
-use async_tungstenite::tungstenite::protocol::CloseFrame;
+use async_std::{channel, task};
 use async_tungstenite::tungstenite::protocol::frame::coding::CloseCode;
+use async_tungstenite::tungstenite::protocol::CloseFrame;
+use async_tungstenite::tungstenite::{Message, WebSocket};
 use async_tungstenite::WebSocketStream;
 use futures::pin_mut;
 use futures::prelude::*;
@@ -104,7 +104,9 @@ async fn handle_unauthenticated_stream(
 	ws.close(Some(CloseFrame {
 		code: CloseCode::Policy,
 		reason: "token_invalid".into(),
-	})).await.expect("Could not close socket");
+	}))
+	.await
+	.expect("Could not close socket");
 }
 
 /// Handles an accepted socket stream after it has been authenticated with a token

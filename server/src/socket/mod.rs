@@ -1,8 +1,8 @@
 use bevy::prelude::*;
 use bevy::time::FixedTimestep;
 
-use crate::{App, Counter, Entity, GameTickStage, Name, PrecisePosition, SystemStage};
 use crate::auth::Auth;
+use crate::{App, Counter, Entity, GameTickStage, Name, PrecisePosition, SystemStage};
 
 pub use self::packets::*;
 use self::socket_server::spawn_socket_thread;

@@ -1,8 +1,9 @@
-use crate::auth::auth_server::spawn_auth_thread;
-use crate::FixedTimestep;
 use bevy::prelude::*;
 
+use crate::FixedTimestep;
+
 pub use self::auth::Auth;
+use self::auth_server::spawn_auth_thread;
 
 mod auth;
 mod auth_server;
