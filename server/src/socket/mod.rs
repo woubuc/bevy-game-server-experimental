@@ -34,15 +34,22 @@ impl Plugin for SocketPlugin {
 		app.insert_resource(socket_receiver);
 
 		// Define separate stages to handle socket data before & after the main game loop
-		app.add_stage_before(GameTickStage, SocketProcessIncomingStage, SystemStage::parallel());
-		app.add_stage_after(GameTickStage, SocketEmitOutgoingStage, SystemStage::parallel().with_run_criteria(FixedTimestep::step(SOCKET_SEND_TIMESTEP)));
+		app.add_stage_before(
+			GameTickStage,
+			SocketProcessIncomingStage,
+			SystemStage::parallel(),
+		);
+		app.add_stage_after(
+			GameTickStage,
+			SocketEmitOutgoingStage,
+			SystemStage::parallel().with_run_criteria(FixedTimestep::step(SOCKET_SEND_TIMESTEP)),
+		);
 
 		app.add_system_to_stage(SocketProcessIncomingStage, socket_process_incoming);
 		app.add_system_to_stage(SocketEmitOutgoingStage, socket_emit_counters);
 		app.add_system_to_stage(SocketEmitOutgoingStage, socket_emit_positions);
 	}
 }
-
 
 fn socket_process_incoming(receiver: Res<SocketReceiver>) {
 	// We don't wait for new packets to arrive, we only process the packets that are already pending in the channel
@@ -51,14 +58,27 @@ fn socket_process_incoming(receiver: Res<SocketReceiver>) {
 	}
 }
 
-fn socket_emit_counters(query: Query<(&Name, &Counter), Changed<Counter>>, sender: Res<SocketSender>) {
+fn socket_emit_counters(
+	query: Query<(&Name, &Counter), Changed<Counter>>,
+	sender: Res<SocketSender>,
+) {
 	for (name, counter) in query.iter() {
-		sender.send_blocking(ServerToClientPacket::CounterChanged { name: name.0.clone(), value: counter.0 }).unwrap();
+		sender
+			.send_blocking(ServerToClientPacket::CounterChanged {
+				name: name.0.clone(),
+				value: counter.0,
+			})
+			.unwrap();
 	}
 }
 
-fn socket_emit_positions(query: Query<(Entity, &PrecisePosition), Changed<PrecisePosition>>, sender: Res<SocketSender>) {
+fn socket_emit_positions(
+	query: Query<(Entity, &PrecisePosition), Changed<PrecisePosition>>,
+	sender: Res<SocketSender>,
+) {
 	for (entity, pos) in query.iter() {
-		sender.send_blocking(ServerToClientPacket::PositionChanged(entity, pos.clone())).unwrap();
+		sender
+			.send_blocking(ServerToClientPacket::PositionChanged(entity, pos.clone()))
+			.unwrap();
 	}
 }

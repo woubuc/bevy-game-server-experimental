@@ -1,9 +1,9 @@
 use std::net::SocketAddr;
 use std::thread;
 
-use async_std::{channel, task};
 use async_std::channel::{Receiver, Sender};
 use async_std::net::{TcpListener, TcpStream};
+use async_std::{channel, task};
 use async_tungstenite::tungstenite::Message;
 use futures::pin_mut;
 use futures::prelude::*;
@@ -68,7 +68,10 @@ async fn handle_stream(
 	let transmit_outgoing = async move {
 		while let Some(packet) = to_client_receiver.next().await {
 			if let Ok(json) = serde_json::to_string(&packet) {
-				outgoing.send(Message::Text(json)).await.expect("Could not send outgoing packet");
+				outgoing
+					.send(Message::Text(json))
+					.await
+					.expect("Could not send outgoing packet");
 			}
 		}
 	};
@@ -77,7 +80,10 @@ async fn handle_stream(
 		while let Some(Ok(msg)) = incoming.next().await {
 			if let Message::Text(json) = msg {
 				if let Ok(packet) = serde_json::from_str::<ClientToServerPacket>(&json) {
-					to_server_sender.send(packet).await.expect("Could not accept incoming packet");
+					to_server_sender
+						.send(packet)
+						.await
+						.expect("Could not accept incoming packet");
 				}
 			}
 		}

@@ -6,10 +6,7 @@ use crate::PrecisePosition;
 /// Events sent by the server to clients
 #[derive(Debug, Clone, Serialize)]
 pub enum ServerToClientPacket {
-	CounterChanged {
-		name: String,
-		value: f64,
-	},
+	CounterChanged { name: String, value: f64 },
 	PositionChanged(Entity, PrecisePosition),
 }
 
