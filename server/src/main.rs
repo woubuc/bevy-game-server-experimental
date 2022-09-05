@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::time::FixedTimestep;
 
 use crate::character::{Character, PlayerControlled};
 use crate::character::{Position, PrecisePosition};
@@ -6,6 +7,12 @@ use crate::socket::{ServerToClientPacket, SocketReceiver, SocketSender, spawn_so
 
 mod socket;
 mod character;
+
+/// How often changed entities should be sent to connected clients, in seconds
+///
+/// Data changes are only sent to the clients every so often to avoid flooding
+/// the network or overloading low-powered clients.
+pub const SOCKET_SEND_TIMESTEP: f64 = 1.0 / 10.0; // 10 updates per second
 
 fn main() {
 	let (socket_sender, socket_receiver) = spawn_socket_thread();
@@ -30,8 +37,11 @@ fn main() {
 		.add_system(move_characters)
 
 		// Post-tick systems
-		.add_system_to_stage(CoreStage::PostUpdate, socket_emit_counters)
-		.add_system_to_stage(CoreStage::PostUpdate, socket_emit_positions)
+		.add_system_set_to_stage(CoreStage::PostUpdate, SystemSet::new()
+			.with_run_criteria(FixedTimestep::step(SOCKET_SEND_TIMESTEP))
+			.with_system(socket_emit_counters)
+			.with_system(socket_emit_positions),
+		)
 
 		.run();
 }
