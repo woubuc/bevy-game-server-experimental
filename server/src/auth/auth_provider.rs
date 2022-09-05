@@ -20,26 +20,20 @@ struct TokenData {
 
 /// Public API for the authentication service
 ///
-/// Users authenticate through the authentication API over HTTP, then receive
-/// an authentication token that they can use to connect via a socket. The
-/// `Auth` resource keeps track of the issued tokens and provides a way to
-/// validate tokens from elsewhere in the application.
-///
-/// `Auth` is thread-safe and can be safely cloned and passed along where it's needed.
+/// `Auth` is thread-safe and can be cloned and passed along to where it is needed.
 #[derive(Debug, Clone)]
 pub struct Auth {
 	tokens: Arc<Mutex<HashMap<String, TokenData>>>,
 }
 
 impl Auth {
+	/// Creates an empty Auth struct without any data
 	pub(super) fn new() -> Self {
 		Auth {
 			tokens: Arc::new(Mutex::new(HashMap::default())),
 		}
 	}
-}
 
-impl Auth {
 	/// Generates a random token and associates it with the given user
 	pub(super) async fn generate_token(&self, user: UserHandle) -> String {
 		let token: String = thread_rng()
